@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.config');
+const User = require('../model/user.model');
+const contant = require('../utils/constant'); 
 
 exports.verifyToken = (req, res, next) => {
     try {
@@ -28,4 +30,23 @@ exports.verifyToken = (req, res, next) => {
             errorMessage: error.message
         })
     }
+}
+
+exports.checkIsAdmin = async(req, res, next) => {
+    try {
+        let user = await User.find({userId: req.userId});
+
+        if(user.userType !== contant.userTypes.admin){
+            return res.status(401).send({
+                message: "Don't have permission to access"
+            })
+        }
+        next()
+    } catch (error) {
+        res.status(500).send({
+            message: 'Internal Server Error',
+            errorMessage: error.message
+        })
+    }
+
 }
